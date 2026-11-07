@@ -1,0 +1,326 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Defend and Aim Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* Layout: bold tab bar over one working panel per station; chunky bordered cards, projector-friendly size. */
+:root{
+  --navy:#1B1F4B; --ink2:#4A4F7A; --bg:#F3F8FF; --card:#FFFFFF;
+  --coral:#FF5D73; --teal:#12B5A5; --violet:#7A5CFF; --yellow:#FFC93C; --blue:#2F9BFF; --green:#5FB41E;
+  --coral-t:#FFE3E7; --teal-t:#D5F5F1; --violet-t:#E8E2FF; --yellow-t:#FFF2C7; --blue-t:#DCEDFF; --green-t:#E8F7D4;
+  --font:'Nunito','Segoe UI',Arial,sans-serif; --r:14px;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--navy);font-family:var(--font);font-size:17px;line-height:1.45;margin:0;
+  padding-block:0 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto}
+header.top{padding:22px 0 10px;display:flex;gap:16px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+h1{font-size:clamp(26px,4.4vw,40px);line-height:1.05;margin:0;font-weight:900;letter-spacing:-.01em}
+.sub{color:var(--ink2);margin:6px 0 0;font-weight:700}
+.badge{background:var(--yellow);border:2px solid var(--navy);border-radius:999px;padding:4px 14px;font-weight:900;font-size:13px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+nav.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:14px 0 18px}
+nav.tabs button{font:inherit;text-align:left;cursor:pointer;background:var(--card);border:2px solid var(--navy);border-radius:var(--r);padding:10px 12px;color:var(--navy);box-shadow:0 4px 0 var(--navy);min-width:0}
+nav.tabs button b{display:block;font-size:17px;font-weight:900}
+nav.tabs button span{display:block;font-size:13px;color:var(--ink2);font-weight:700}
+nav.tabs button[aria-selected=true]{background:var(--tabc,var(--blue));color:#fff;transform:translateY(2px);box-shadow:0 2px 0 var(--navy)}
+nav.tabs button[aria-selected=true] span{color:#fff}
+nav.tabs button:focus-visible,.btn:focus-visible,select:focus-visible,textarea:focus-visible,input:focus-visible,.opt:focus-visible{outline:3px solid var(--violet);outline-offset:2px}
+.panel{display:none}.panel.on{display:block}
+.card{background:var(--card);border:2px solid var(--navy);border-radius:var(--r);padding:16px 18px;margin:0 0 16px}
+.card h2{margin:0 0 6px;font-size:22px;font-weight:900}
+.card h3{margin:0 0 6px;font-size:18px;font-weight:900}
+.mission{background:var(--yellow-t);border-color:var(--navy)}
+.lead{color:var(--ink2);font-weight:700;margin:0 0 10px}
+.btn{font:inherit;font-weight:900;border:2px solid var(--navy);border-radius:12px;background:var(--yellow);color:var(--navy);padding:9px 18px;cursor:pointer;box-shadow:0 4px 0 var(--navy)}
+.btn:active{transform:translateY(2px);box-shadow:0 2px 0 var(--navy)}
+.btn.alt{background:var(--card)}.btn.go{background:var(--green);color:#fff}.btn[disabled]{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.chain{display:flex;gap:6px;align-items:stretch;flex-wrap:wrap;margin:8px 0}
+.node{flex:1 1 130px;min-width:0;border:2px solid var(--navy);border-radius:12px;padding:8px 10px;background:var(--blue-t);font-weight:800;font-size:15px;transition:.25s}
+.node small{display:block;font-weight:700;color:var(--ink2);font-size:12.5px}
+.node.hit{background:var(--coral);color:#fff}.node.hit small{color:#fff}
+.node.ok{background:var(--green-t)}.node.bad{background:var(--coral-t)}
+.arrow{align-self:center;font-weight:900;font-size:22px}
+.slot{flex:1 1 140px;min-height:74px;border:2px dashed var(--navy);border-radius:12px;padding:8px;background:#fff;cursor:pointer;font-weight:800;font-size:15px;min-width:0}
+.slot i{display:block;font-style:normal;font-size:12px;color:var(--ink2);font-weight:900;letter-spacing:.06em;text-transform:uppercase}
+.slot.f{border-style:solid;background:var(--blue-t)}.slot.good{background:var(--green-t)}.slot.wrong{background:var(--coral-t)}
+.opts{display:grid;gap:8px;margin:8px 0}
+.opt{font:inherit;text-align:left;cursor:pointer;background:#fff;border:2px solid var(--navy);border-radius:12px;padding:9px 12px;color:var(--navy);font-weight:700;min-width:0}
+.opt:hover{background:var(--blue-t)}.opt.sel{background:var(--violet-t);border-color:var(--violet);box-shadow:inset 0 0 0 2px var(--violet)}
+.opt.good{background:var(--green-t);border-color:var(--green)}.opt.wrong{background:var(--coral-t);border-color:var(--coral)}
+.fb{border-radius:12px;padding:10px 14px;font-weight:700;margin-top:10px;border:2px solid var(--navy)}
+.fb.good{background:var(--green-t)}.fb.bad{background:var(--coral-t)}.fb.info{background:var(--blue-t)}
+.tag{display:inline-block;border:2px solid var(--navy);border-radius:999px;padding:1px 10px;font-size:12px;font-weight:900;letter-spacing:.05em;text-transform:uppercase;background:var(--violet-t)}
+.tag.red{background:var(--coral-t)}.tag.green{background:var(--green-t)}.tag.y{background:var(--yellow-t)}
+table.log{border-collapse:collapse;width:100%;font-size:14.5px}
+table.log th,table.log td{border:2px solid var(--navy);padding:6px 8px;text-align:left;vertical-align:top}
+table.log th{background:var(--blue-t);font-weight:900}
+.tw{overflow-x:auto}
+select,textarea,input[type=text]{font:inherit;font-weight:700;border:2px solid var(--navy);border-radius:10px;padding:8px 10px;background:#fff;color:var(--navy);max-width:100%}
+textarea{width:100%;min-height:90px}
+select{min-width:0;width:100%}
+label.lbl{display:block;font-weight:900;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink2);margin:8px 0 3px}
+.dots{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin:6px 0}
+.dots span{border:2px solid var(--navy);border-radius:6px;text-align:center;font-weight:900;padding:4px 0;font-size:14px;background:var(--green-t)}
+.dots span.x{background:var(--coral-t)}
+.big{font-size:32px;font-weight:900;line-height:1}
+.bar{height:20px;border:2px solid var(--navy);border-radius:10px;background:#fff;overflow:hidden}
+.bar>i{display:block;height:100%;width:0;background:var(--blue);transition:width .6s}
+.score{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0}
+.score div{border:2px solid var(--navy);border-radius:12px;padding:6px 12px;background:var(--yellow-t);font-weight:900}
+.chk{list-style:none;padding:0;margin:8px 0}.chk li{padding:3px 0;font-weight:800}
+.chk li::before{content:"○ ";color:var(--ink2)}.chk li.y::before{content:"✔ ";color:var(--green)}
+.fb+.row,.opts+.row{margin-top:10px}
+.note{font-size:14px;color:var(--ink2);font-weight:700}
+footer{margin-top:24px;color:var(--ink2);font-size:14px;font-weight:700}
+@media(max-width:720px){nav.tabs{grid-template-columns:repeat(2,1fr)}.grid2,.grid3{grid-template-columns:1fr}.arrow{display:none}body{font-size:16px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<div class="wrap">
+<header class="top"><div><h1>Defend and Aim Lab</h1><p class="sub">Grade 12 AI · Week 12 · Defend it, review it, aim higher</p></div><span class="badge">Week 12 · Lab</span></header>
+<nav class="tabs" role="tablist" aria-label="Lab stations"><button role="tab" data-tab="h1" aria-selected="false" style="--tabc:var(--coral)"><b>H1 Defend Studio</b><span>Frame + evidence + risk</span></button><button role="tab" data-tab="h2" aria-selected="false" style="--tabc:var(--teal)"><b>H2 Evidence Check</b><span>Verify, then trust</span></button><button role="tab" data-tab="h3" aria-selected="false" style="--tabc:var(--violet)"><b>H3 Peer Review</b><span>Score, feed-forward, act</span></button><button role="tab" data-tab="h4" aria-selected="false" style="--tabc:var(--blue)"><b>H4 Goal and Stakes</b><span>Goal + governance</span></button></nav>
+<section class="panel" id="h1" role="tabpanel">
+ <div class="card mission"><h2>H1 · Defend Studio</h2><p class="lead">Mission: build two justifications for the Service Request Router, one design choice and one evaluation choice, with the frame: <b>I chose X so the system could Y, I evaluated it by measuring Z, and I managed the risk W.</b></p></div>
+ <div class="card"><h3>1 · Pick a design choice (X)</h3><div class="opts" id="h1d" style="grid-template-columns:repeat(auto-fit,minmax(230px,1fr))"></div></div>
+ <div class="card"><h3>2 · What is the purpose (Y)?</h3><div class="opts" id="h1y" style="grid-template-columns:repeat(auto-fit,minmax(230px,1fr))"></div></div>
+ <div class="card"><h3>3 · Pick an evaluation choice (Z)</h3><div class="opts" id="h1e" style="grid-template-columns:repeat(auto-fit,minmax(230px,1fr))"></div></div>
+ <div class="card"><h3>4 · Pick the risk you managed (W)</h3><div class="opts" id="h1r" style="grid-template-columns:repeat(auto-fit,minmax(230px,1fr))"></div></div>
+ <div class="card"><h3>5 · Your justification</h3><div id="h1out" class="fb info">Make your four picks above.</div>
+  <ul class="chk" id="h1chk"><li data-k="num">Evidence: a before-and-after number with its unit (pp)</li><li data-k="cost">Names the trade-off it cost</li><li data-k="fair">Measured fairly: fresh requests, not the practice requests</li><li data-k="src">Checked against a trusted source, not the router’s own claim</li><li data-k="risk">Names a managed risk with a real control</li></ul>
+  <div id="h1fb" class="fb" hidden></div></div>
+ <div class="card"><h3>6 · Now write one for your own signature solution</h3><textarea id="h1own" aria-label="My justification" placeholder="I chose … so the system could …, I evaluated it by measuring …, and I managed the risk …"></textarea>
+  <ul class="chk" id="h1ownchk"><li data-k="chose">“I chose …” (a design or evaluation choice)</li><li data-k="so">“… so the system could …” (the purpose)</li><li data-k="meas">“… I evaluated it by measuring …”</li><li data-k="risk">“… I managed the risk …”</li><li data-k="num">A number</li></ul>
+  <div class="row"><button class="btn" id="h1copy">Copy my answers</button></div></div>
+</section>
+
+<section class="panel" id="h2" role="tabpanel">
+ <div class="card mission"><h2>H2 · Evidence Check</h2><p class="lead">Mission: separate evidence from impression, verify a reply against the service rules before you trust it (including the rule it cites), and scan an exhibit for personal data.</p></div>
+ <div class="card"><h3>1 · Evidence or impression?</h3><p class="lead">Tap the label for each claim.</p><div id="h2cl"></div><div class="score"><div id="h2sc">Claims 0 / 6</div></div></div>
+ <div class="card"><h3>2 · Verify before you trust</h3>
+  <p class="lead">Three replies came back fast, confident and each cites a rule. Check each against the trusted service rules. Tap the one that is wrong.</p>
+  <div class="tw"><table class="log"><thead><tr><th>Rule</th><th>Service</th><th>What the rule says</th></tr></thead><tbody><tr><td><b>3.1</b></td><td>Bulk waste pickup</td><td>1 free pickup per month, then AED 50</td></tr><tr><td><b>4.1</b></td><td>Parking permit renewal</td><td>Renew up to 14 days before expiry</td></tr><tr><td><b>5.2</b></td><td>Library, Friday</td><td>08:00 to 20:00</td></tr><tr><td><b>6.1</b></td><td>Flood or hazard report</td><td>Send to a person at once</td></tr></tbody></table></div>
+  <div class="opts" id="h2v" style="margin-top:10px"></div><div id="h2fb2" class="fb" hidden></div>
+  <label class="lbl" for="h2src">Which is the trusted source?</label>
+  <select id="h2src"><option value="">Choose…</option><option value="1">The service rules sheet</option><option value="0">The router’s confident wording</option><option value="0">The fastest reply</option></select><div id="h2fb3" class="fb" hidden></div>
+  <label class="lbl" for="h2cite">The wrong reply cited “Rule 4.2”. What does that tell you?</label>
+  <select id="h2cite"><option value="">Choose…</option><option value="0">A rule number makes a reply more trustworthy</option><option value="0">Nothing: citations are decoration</option><option value="1">A citation can be invented. Check that the rule exists and says that</option></select><div id="h2fb5" class="fb" hidden></div></div>
+ <div class="card"><h3>3 · Personal-data scan</h3><p class="lead">This exhibit slide is about to be shown. Tick everything that must be removed first (it is personal data).</p>
+  <ul class="chk" id="h2pd" style="list-style:none"></ul>
+  <div class="row"><button class="btn go" id="h2pdbtn">Check my scan</button><button class="btn" id="h2copy">Copy my answers</button></div><div id="h2fb4" class="fb" hidden></div></div>
+</section>
+
+<section class="panel" id="h3" role="tabpanel">
+ <div class="card mission"><h2>H3 · Peer Review Carousel</h2><p class="lead">Mission: calibrate your scoring on a sample exhibit with the rubric (Understand, Design, Evaluate, Govern), leave feed-forward (a strength, one improvement, a question) on three exhibits, then act on one comment and re-check every criterion.</p></div>
+ <div class="card"><h3>1 · Calibrate: score the sample exhibit (0 to 2 each)</h3>
+  <div class="tw"><table class="log"><tbody><tr><th>Understand</th><td>Names the purpose (residents get the right rule) and the four components (Request, Retrieve, Draft, Review).</td></tr><tr><th>Design</th><td>Retrieve returns 3 snippets. Fresh requests 6 of 10 → 8 of 10 (+20 pp). Cost: 12 s → 15 s.</td></tr><tr><th>Evaluate</th><td>Every reply compared with the service rules. The usability claim (“staff understand it”) has no measure.</td></tr><tr><th>Govern</th><td>Made-up requests only. A person approves urgent replies.</td></tr></tbody></table></div>
+  <div class="grid2" id="h3rub" style="margin-top:10px"></div>
+  <div class="row"><button class="btn go" id="h3cal">Compare with the reference scores</button></div><div id="h3fb1" class="fb" hidden></div></div>
+ <div class="card"><h3>2 · Feed-forward on three exhibits</h3><div id="h3ff"></div><div class="row"><button class="btn go" id="h3ffbtn">Check my feed-forward</button></div><div id="h3fb2" class="fb" hidden></div></div>
+ <div class="card"><h3>3 · Act on the best comment, then re-check every criterion</h3>
+  <p class="lead">Your exhibit received three comments. Pick the most useful one and change ONE component. Then re-measure. Baseline: urgent-request tests passed 1 of 3 (33%).</p>
+  <label class="lbl">Most useful comment</label><div class="opts" id="h3cm"></div>
+  <label class="lbl" for="h3comp">Component to change</label>
+  <select id="h3comp"><option value="">Choose…</option><option value="prompt">Shorten the Draft prompt</option><option value="s1">Review: add an urgent flag that routes to a person</option><option value="data">Add three more rules to the data</option></select>
+  <div class="row" style="margin-top:10px"><button class="btn go" id="h3act">Change it and re-measure</button></div>
+  <div class="tw"><table class="log" id="h3tab" hidden></table></div><div id="h3fb3" class="fb" hidden></div>
+  <label class="lbl" for="h3rc">Now what must you re-check?</label>
+  <select id="h3rc"><option value="">Choose…</option><option value="0">Only the urgent-request tests</option><option value="0">Nothing: the change was small</option><option value="1">Every criterion, because a change can ripple to other components</option></select><div id="h3fb4" class="fb" hidden></div></div>
+ <div class="card"><div class="row"><button class="btn" id="h3copy">Copy my answers</button></div></div>
+</section>
+
+<section class="panel" id="h4" role="tabpanel">
+ <div class="card mission"><h2>H4 · Goal and Stakes</h2><p class="lead">Mission: turn your term into one measurable goal, audit a governance canvas for a harder job, then plan how your solution would change when the stakes are higher.</p></div>
+ <div class="card"><h3>1 · Build a measurable Term-2 goal</h3>
+  <div class="grid2"><div><label class="lbl" for="h4sk">The skill that carried across my term</label><select id="h4sk"><option value="">Choose…</option><option>Understanding a system</option><option>Designing it</option><option>Evaluating it</option><option>Governing it</option></select></div>
+  <div><label class="lbl" for="h4m">Metric</label><select id="h4m"><option value="">Choose…</option><option value="acc">End-to-end accuracy on fresh requests (%)</option><option value="edge">Edge-case tests passed (%)</option><option value="time">Seconds per request</option><option value="succ">User-success rate (%)</option></select></div>
+  <div><label class="lbl" for="h4b">Baseline now</label><input type="text" id="h4b" inputmode="numeric" placeholder="for example 80"></div>
+  <div><label class="lbl" for="h4t">Target</label><input type="text" id="h4t" inputmode="numeric" placeholder="for example 90"></div>
+  <div><label class="lbl" for="h4w">By when</label><select id="h4w"><option value="">Choose…</option><option>week 3</option><option>week 6</option><option>week 9</option><option>the end of Term 2</option></select></div>
+  <div><label class="lbl" for="h4lim">Limit I will not break</label><select id="h4lim"><option value="">Choose…</option><option value="1">No more than 18 s per request</option><option value="1">No new personal data is used</option><option value="0">No limit: only the target matters</option></select></div>
+  <div style="grid-column:1/-1"><label class="lbl" for="h4c">How I will check</label><select id="h4c"><option value="">Choose…</option><option value="1">On 20 held-out requests against a trusted source</option><option value="0">I will see how it feels</option><option value="1">With a before-and-after log of every run</option></select></div></div>
+  <div class="row" style="margin-top:10px"><button class="btn go" id="h4g">Build my goal</button></div>
+  <ul class="chk" id="h4chk"><li data-k="m">A specific metric</li><li data-k="b">A baseline</li><li data-k="t">A target that is better than the baseline</li><li data-k="w">A deadline</li><li data-k="l">A limit on a trade-off</li><li data-k="c">A way to check it</li></ul>
+  <div id="h4fb1" class="fb" hidden></div></div>
+ <div class="card"><h3>2 · Governance canvas audit</h3>
+  <p class="lead">The Service Request Router will now handle emergency reports from real residents. Tick every control that is MISSING, then choose which to fix first.</p>
+  <ul class="chk" id="h4gv" style="list-style:none"></ul>
+  <label class="lbl" for="h4first">Fix this first</label>
+  <select id="h4first"><option value="">Choose…</option><option value="0">Transparency: show the rule in every reply</option><option value="1">Human oversight: route urgent and emergency requests to a person</option><option value="0">Redress: let a resident challenge a reply</option></select>
+  <div class="row" style="margin-top:10px"><button class="btn go" id="h4gvbtn">Check my audit</button></div><div id="h4fbg" class="fb" hidden></div></div>
+ <div class="card"><h3>3 · Higher stakes: what changes?</h3>
+  <p class="lead">Choose the best plan for each line, for the emergency version.</p>
+  <label class="lbl" for="h4s1">Component to strengthen</label><select id="h4s1"><option value="">Choose…</option><option value="0">The colours of the reply</option><option value="0">The length of the prompt</option><option value="1">The Review step: an urgent flag and a person’s sign-off</option></select>
+  <label class="lbl" for="h4s2">Trade-off to rebalance</label><select id="h4s2"><option value="">Choose…</option><option value="1">Accept a slower reply in return for a higher accuracy target</option><option value="0">Make it even faster and skip checks</option><option value="0">Remove the usability goal</option></select>
+  <label class="lbl" for="h4s3">Extra verification</label><select id="h4s3"><option value="">Choose…</option><option value="0">Trust the router: it has been right before</option><option value="0">Check one reply a week</option><option value="1">Compare every reply with the live service rules before it is sent</option></select>
+  <label class="lbl" for="h4s4">Governance control</label><select id="h4s4"><option value="">Choose…</option><option value="0">None needed: it is only a reply</option><option value="1">A named person approves each emergency reply and no personal data is used</option><option value="0">Add the resident’s name for accountability</option></select>
+  <div class="row" style="margin-top:10px"><button class="btn go" id="h4s">Check my plan</button><button class="btn" id="h4copy">Copy my answers</button></div><div id="h4fb2" class="fb" hidden></div></div>
+</section>
+
+<footer>Made-up examples only. No names, faces or personal details. Nothing you type here is saved or sent anywhere. Use “Copy my answers” and paste into your worksheet.</footer>
+</div>
+<script>
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+const initDone={};
+function show(id,push){
+  if(!/^h[1-4]$/.test(id)) id='h1';
+  $$('[role=tab]').forEach(t=>t.setAttribute('aria-selected',t.dataset.tab===id));
+  $$('.panel').forEach(p=>p.classList.toggle('on',p.id===id));
+  if(!initDone[id]&&window['init_'+id]){initDone[id]=1;window['init_'+id]()}
+  if(push!==false&&location.hash!=='#'+id){try{history.replaceState(null,'','#'+id)}catch(e){location.hash=id}}
+}
+$$('[role=tab]').forEach(t=>t.addEventListener('click',()=>show(t.dataset.tab)));
+window.addEventListener('hashchange',()=>show(location.hash.slice(1),false));
+function copyText(txt,btn){
+  const done=()=>{const o=btn.textContent;btn.textContent='Copied ✔';setTimeout(()=>btn.textContent=o,1600)};
+  const fb=()=>{let ta=btn.parentElement.querySelector('textarea.cp');if(!ta){ta=document.createElement('textarea');ta.className='cp';ta.readOnly=true;btn.parentElement.appendChild(ta)}ta.value=txt;ta.style.width='100%';ta.select()};
+  try{navigator.clipboard.writeText(txt).then(done).catch(fb)}catch(e){fb()}
+}
+function fbox(id,cls,html){const e=$('#'+id);e.className='fb '+cls;e.innerHTML=html;e.hidden=false}
+</script>
+<script>
+const R={};
+const pickOpts=(sel,items,cb)=>{const el=$(sel);el.innerHTML=items.map((t,i)=>`<button class="opt" data-i="${i}">${t}</button>`).join('');el.addEventListener('click',e=>{const b=e.target.closest('[data-i]');if(!b)return;$$('.opt',el).forEach(x=>x.classList.toggle('sel',x===b));cb(+b.dataset.i)})};
+/* ---------- H1 ---------- */
+const DC=[
+ {t:'<span class="tag">Design</span><br>Retrieve returns three rule snippets',x:'to have Retrieve return three rule snippets',n:'+20 pp (6 of 10 to 8 of 10 correct)',c:'speed (12 s to 15 s per request)',pos:1},
+ {t:'<span class="tag">Design</span><br>Review gets an urgent flag that routes to a person',x:'to add an urgent flag at Review that routes to a person',n:'+67 pp (urgent-request tests 1 of 3 to 3 of 3)',c:'one extra step for a staff member',pos:1},
+ {t:'<span class="tag">Design</span><br>Retrieve returns only the top snippet',x:'to have Retrieve return only the top snippet',n:'−10 pp (6 of 10 to 5 of 10 correct) for 12 s to 9 s',c:'accuracy and usability',pos:0}];
+const YC=['help residents act on the right rule','look professional','use fewer words'];
+const EC=[
+ {t:'<span class="tag">Evaluation</span><br>Test on fresh requests and compare each reply with the service rules',w:'fresh requests it was never tuned on, each reply compared with the service rules',fair:1,src:1},
+ {t:'<span class="tag">Evaluation</span><br>Test on the 10 practice requests I tuned on',w:'the 10 practice requests I tuned on, compared with the service rules',fair:0,src:1},
+ {t:'<span class="tag">Evaluation</span><br>Ask the router whether its reply is right',w:'fresh requests, but I trusted the router’s own claim that it was right',fair:1,src:0}];
+const RK=[
+ {t:'<span class="tag red">Risk</span><br>A person approves urgent replies and no personal data is used',w:'a person approves urgent replies and no personal data is used',ok:1},
+ {t:'<span class="tag red">Risk</span><br>Tell residents to double-check the reply',w:'residents are told to double-check',ok:0},
+ {t:'<span class="tag red">Risk</span><br>Remove the Review step to save time',w:'the Review step is removed to save time',ok:0}];
+let h1=[null,null,null,null];
+function h1upd(){
+  const [d,y,e,r]=h1;if(h1.includes(null)){return}
+  const D=DC[d],E=EC[e],K=RK[r];
+  const s=`I chose ${D.x} so the system could ${YC[y]}. I evaluated it by measuring ${E.w}: ${D.n}. It cost ${D.c}. I managed the risk: ${K.w}.`;
+  R.h1=s;$('#h1out').className='fb good';$('#h1out').textContent=s;
+  const ok={num:true,cost:true,fair:e===0,src:!!E.src,risk:!!K.ok};
+  $$('#h1chk li').forEach(li=>li.classList.toggle('y',!!ok[li.dataset.k]));
+  let m;
+  if(!D.pos)m='The frame is complete, but the evidence shows a net loss: accuracy fell 10 pp. That is an optimisation for speed that harmed performance. A strong showcase picks a choice whose evidence supports the purpose.';
+  else if(e===1)m='Not fair evidence: the build was tuned on the practice requests, so a good score there says little. Use fresh requests.';
+  else if(e===2)m='Not a trusted source: the router grading itself is only a claim. Verify against the service rules.';
+  else if(y!==0)m='Evidence and checks are good, but the purpose (Y) should name a real need, here residents acting on the right rule, not looks or word count.';
+  else if(!K.ok)m='Good evidence, but a managed risk needs a real control. Telling residents to double-check shifts the risk onto them, and removing Review removes the control.';
+  else m='Strong justification: a choice, a purpose, a before-and-after number in pp, an honest cost, a fair test, a trusted source and a managed risk.';
+  fbox('h1fb',(D.pos&&e===0&&y===0&&K.ok)?'good':'bad',m);
+}
+function init_h1(){
+  pickOpts('#h1d',DC.map(d=>d.t),i=>{h1[0]=i;h1upd()});
+  pickOpts('#h1y',YC.map(y=>`<span class="tag y">Purpose (Y)</span><br>${esc(y)}`),i=>{h1[1]=i;h1upd()});
+  pickOpts('#h1e',EC.map(e=>e.t),i=>{h1[2]=i;h1upd()});
+  pickOpts('#h1r',RK.map(k=>k.t),i=>{h1[3]=i;h1upd()});
+  const own=()=>{const t=$('#h1own').value;R.h1own=t;const ok={chose:/\bchose\b/i.test(t),so:/\bso\b[^.]*\bcould\b/i.test(t),meas:/(evaluat|verif)[^.]*measur/i.test(t),risk:/\brisk\b/i.test(t),num:/\d/.test(t)};$$('#h1ownchk li').forEach(li=>li.classList.toggle('y',!!ok[li.dataset.k]))};
+  $('#h1own').addEventListener('input',own);
+  $('#h1copy').onclick=e=>copyText(`H1 Defend Studio\nJustification 1: ${R.h1||'(not built)'}\nMy own: ${R.h1own||'(not written)'}`,e.target);
+}
+/* ---------- H2 ---------- */
+const CL=[['Fresh-request accuracy went from 6 of 10 to 8 of 10.',1],['It feels much better now.',0],['Each reply takes 15 s instead of 12 s.',1],['Everyone loved the demo.',0],['9 of 10 staff said they understood the reply.',1],['It is obviously correct: it cites a rule number.',0]];
+const VO=[['Bulk waste pickup: “1 free pickup per month, then AED 50 (Rule 3.1)”',0],['Parking permit: “Renew any time after it expires (Rule 4.2)”',1],['Library, Friday: “08:00 to 20:00 (Rule 5.2)”',0]];
+const PD=[['Screenshot of a request showing a resident’s name and phone number',1],['A student’s face in the demo video',1],['Made-up requests such as “Bulk waste pickup: is it free?”',0],['The public service rules sheet',0],['A recording of a staff member’s voice',1],['A screenshot showing a student’s account login',1]];
+let clAns=Array(6).fill(null);
+function init_h2(){
+  $('#h2cl').innerHTML=CL.map((c,i)=>`<div class="row" data-ci="${i}" style="margin-bottom:6px;justify-content:space-between"><span style="flex:1 1 260px;font-weight:800">${esc(c[0])}</span><span class="row"><button class="btn alt" data-a="1">Evidence</button><button class="btn alt" data-a="0">Impression</button></span><span class="note" style="flex:1 1 100%"></span></div>`).join('');
+  $('#h2cl').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const r=b.closest('[data-ci]'),i=+r.dataset.ci,a=+b.dataset.a;clAns[i]=a===CL[i][1]?1:0;
+    $$('[data-a]',r).forEach(x=>x.classList.toggle('go',x===b&&clAns[i]===1));r.querySelector('.note').textContent=clAns[i]?'✔ Correct.':'✘ Not quite: evidence is a measured number or comparison; an impression is a feeling, or a claim with no measure. A rule number is a citation, not a measure.';
+    $('#h2sc').textContent='Claims '+clAns.filter(x=>x===1).length+' / 6'});
+  $('#h2v').innerHTML=VO.map(v=>`<button class="opt" data-ok="${v[1]}">${esc(v[0])}</button>`).join('');
+  $('#h2v').addEventListener('click',e=>{const b=e.target.closest('.opt');if(!b)return;$$('#h2v .opt').forEach(x=>x.classList.remove('sel','good','wrong'));
+    b.classList.add(b.dataset.ok==='1'?'good':'wrong');R.h2v=b.dataset.ok==='1';
+    fbox('h2fb2',b.dataset.ok==='1'?'good':'bad',b.dataset.ok==='1'?'Yes. There is no Rule 4.2 on the sheet, and the reply contradicts Rule 4.1 (renew up to 14 days before expiry). All three replies were fast, confident and cited a rule. Only the check showed the error.':'That reply matches the sheet. Compare each reply with the rule it cites, and check that the rule number exists. Try the others.')});
+  $('#h2src').onchange=()=>{const v=$('#h2src').value;if(!v)return;R.h2s=v==='1';fbox('h2fb3',v==='1'?'good':'bad',v==='1'?'Yes: a trusted source is independent of the thing being checked.':'No. Confidence and speed are not evidence of correctness.')};
+  $('#h2cite').onchange=()=>{const v=$('#h2cite').value;if(!v)return;R.h2c=v==='1';fbox('h2fb5',v==='1'?'good':'bad',v==='1'?'Yes. A model can invent a plausible citation. Check that the rule exists and says what the reply claims.':'No. A rule number looks official, but it is only a claim until you check it against the sheet.')};
+  $('#h2pd').innerHTML=PD.map((p,i)=>`<li style="list-style:none"><label><input type="checkbox" data-p="${i}"> ${esc(p[0])}</label></li>`).join('');
+  $('#h2pdbtn').onclick=()=>{const t=$$('#h2pd input').map(x=>x.checked?1:0),want=PD.map(p=>p[1]);const ok=t.every((v,i)=>v===want[i]);R.h2p=ok;
+    fbox('h2fb4',ok?'good':'bad',ok?'Clean. A name, a phone number, a face, a voice and an account login are all personal data. Made-up requests and a public rules sheet are fine to show.':'Not yet. Remove anything that identifies a person (face, name, contact details, voice, login). Keep non-personal examples.')};
+  $('#h2copy').onclick=e=>copyText(`H2 Evidence Check\nClaims sorted correctly: ${clAns.filter(x=>x===1).length} of 6\nWrong reply found (cites Rule 4.2, which does not exist): ${R.h2v?'yes':'not yet'}\nTrusted source: ${R.h2s?'the service rules sheet':'not chosen'}\nCitation lesson: ${R.h2c?'check the rule exists and says that':'not answered'}\nPersonal-data scan correct: ${R.h2p?'yes':'not yet'}`,e.target);
+}
+/* ---------- H3 ---------- */
+const RUB=['Understand','Design','Evaluate','Govern'],REF=[2,2,1,2];
+const RWHY=['The purpose and the four components are named.','The choice, the +20 pp gain and the 12 s to 15 s cost are stated.','Replies were checked against the rules, but the usability claim has no measure, so only 1.','Made-up requests only, and a person approves urgent replies.'];
+const EX=[
+ {n:'Exhibit A · Library Book Finder',m:'Optimised usability. User success 6 of 10 to 9 of 10. Cost: one extra step. No check against a source. No risk named.',s:['Strength: a clear before-and-after user-success number','Strength: a nice name','Strength: it looks colourful'],i:['Improvement: verify book locations against the catalogue','Improvement: make the title bigger','Improvement: add more features'],q:['Question: what did the extra step cost in seconds?','Question: who is your teacher?','Question: is it done?']},
+ {n:'Exhibit B · Recycling Sorter Helper',m:'Optimised accuracy 55% to 80% on held-out photos. Verified against the school recycling sheet. The slide shows a student’s photo.',s:['Strength: you verified against the school recycling sheet','Strength: it is fast','Strength: it is popular'],i:['Improvement: remove the student’s photo (personal data)','Improvement: use a different font','Improvement: make it longer'],q:['Question: what did the accuracy gain cost in speed?','Question: why this colour?','Question: do you like it?']},
+ {n:'Exhibit C · Timetable Reminder',m:'“It is the best reminder tool and everyone likes it.” No numbers, no checks, no cost named, no risk managed.',s:['Strength: the goal is clear and useful','Strength: it is the best','Strength: it is finished'],i:['Improvement: add a before-and-after number measured on fresh inputs','Improvement: make the claim louder','Improvement: add a logo'],q:['Question: how would you check it against a trusted source?','Question: is it better than the others?','Question: who made it?']}];
+const CM=[['“What happens if an urgent request arrives?”',1],['“Nice router!”',0],['“I would change the colours.”',0]];
+function init_h3(){
+  $('#h3rub').innerHTML=RUB.map((r,i)=>`<div><label class="lbl" for="h3r${i}">${r}</label><select id="h3r${i}"><option value="">Score…</option><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></div>`).join('');
+  $('#h3cal').onclick=()=>{
+    const v=RUB.map((_,i)=>$('#h3r'+i).value);if(v.includes('')){fbox('h3fb1','info','Score all four rows first.');return}
+    const near=v.filter((x,i)=>+x===REF[i]).length;R.h3cal=`${v.join(',')} (reference ${REF.join(',')})`;
+    fbox('h3fb1',near===4?'good':'info',`Reference scores: ${REF.join(', ')} (total 7 of 8). You matched ${near} of 4 rows. When scores differ, do not argue opinions: point to the evidence. ${RWHY.map((w,i)=>`${RUB[i]}: ${w}`).join(' ')}`);
+  };
+  $('#h3ff').innerHTML=EX.map((x,k)=>`<div style="margin-bottom:14px"><span class="tag y">${esc(x.n)}</span><p class="note">${esc(x.m)}</p><div class="opts">`+['s','i','q'].map((t,j)=>`<select id="h3f${k}${t}" aria-label="${['Strength','Improvement','Question'][j]} for ${esc(x.n)}"><option value="">${['Strength','Improvement','Question'][j]}…</option>${[0,1,2].map(n=>(n+k+j)%3).map(n=>`<option value="${n}">${esc(x[t][n])}</option>`).join('')}</select>`).join('')+'</div></div>').join('');
+  $('#h3ffbtn').onclick=()=>{
+    let miss=0,best=0;EX.forEach((x,k)=>['s','i','q'].forEach(t=>{const v=$(`#h3f${k}${t}`).value;if(v==='')miss++;else if(+v===0)best++}));
+    if(miss){fbox('h3fb2','info','Choose a strength, an improvement and a question for all three exhibits.');return}
+    R.h3ff=best;
+    fbox('h3fb2',best===9?'good':'info',`${best} of 9 are the strongest. Best feed-forward is specific, about the work (not the person), and tied to a number or a risk: a strength, one concrete improvement, and a question.`);
+  };
+  $('#h3cm').innerHTML=CM.map((c,i)=>`<button class="opt" data-i="${i}">${esc(c[0])}</button>`).join('');
+  let cm=null;$('#h3cm').addEventListener('click',e=>{const b=e.target.closest('[data-i]');if(!b)return;cm=+b.dataset.i;$$('#h3cm .opt').forEach(x=>x.classList.toggle('sel',x===b))});
+  $('#h3act').onclick=()=>{
+    const c=$('#h3comp').value;if(cm===null||!c){fbox('h3fb3','info','Pick a comment and a component.');return}
+    const res={s1:{u:3,t:15,a:8},prompt:{u:1,t:12,a:7},data:{u:1,t:16,a:8}}[c];const pct=Math.round(res.u/3*100),gain=pct-33;
+    $('#h3tab').hidden=false;
+    $('#h3tab').innerHTML=`<thead><tr><th>Criterion</th><th>Before</th><th>After</th></tr></thead><tbody>
+     <tr><td>Urgent-request tests passed</td><td>1 of 3 = 33%</td><td>${res.u} of 3 = ${pct}%</td></tr>
+     <tr><td>End-to-end accuracy (fresh requests)</td><td>8 of 10 = 80%</td><td>${res.a} of 10 = ${res.a*10}%</td></tr>
+     <tr><td>Time per request</td><td>15 s</td><td>${res.t} s</td></tr>
+     <tr><td>No personal data</td><td>Pass</td><td>Pass</td></tr></tbody>`;
+    R.h3a=`Comment ${CM[cm][0]}; changed ${c}; urgent tests 1 of 3 to ${res.u} of 3`;
+    if(c==='s1'&&cm===0)fbox('h3fb3','good',`The number moved: urgent-request tests 1 of 3 → 3 of 3 (+${gain} pp), and accuracy and time did not change. You acted on the most useful comment, changed ONE component and re-measured. Record before, after and the trade-off (one extra step for a person).`);
+    else if(c==='s1')fbox('h3fb3','info',`The change worked (+${gain} pp), but it answers a different comment from the one you picked. The most useful comment is tied to a risk: “What happens if an urgent request arrives?”`);
+    else if(c==='prompt')fbox('h3fb3','bad','The urgent tests did not move, and accuracy fell from 80% to 70% (−10 pp): a faster reply, a worse system. Match the component to the comment, then re-check every criterion.');
+    else fbox('h3fb3','bad','The urgent tests did not move and the reply got 1 second slower. You changed a component that does not touch the urgent-request problem. Match the component to the comment, then re-measure.');
+  };
+  $('#h3rc').onchange=()=>{const v=$('#h3rc').value;if(!v)return;R.h3rc=v==='1';fbox('h3fb4',v==='1'?'good':'bad',v==='1'?'Yes. A change in one component ripples to others. Re-check every criterion (accuracy, time, urgent tests, personal data) and confirm nothing regressed.':'No. A small change can still ripple. The prompt change above fixed nothing and cost 10 pp of accuracy. Re-check every criterion.')};
+  $('#h3copy').onclick=e=>copyText(`H3 Peer Review Carousel\nCalibration scores: ${R.h3cal||'not done'}\nFeed-forward picks that were strongest: ${R.h3ff??'not checked'} of 9\nAct and re-check: ${R.h3a||'not done'}\nRe-check every criterion: ${R.h3rc?'yes':'not answered'}`,e.target);
+}
+/* ---------- H4 ---------- */
+const GV=[['Accountability','A named Service Desk Manager owns the router and signs off every change.',0],['Transparency','Replies do not say which rule they used.',1],['Data governance','Requests are made-up or anonymised and nothing personal is stored.',0],['Human oversight','Urgent and emergency requests are sent as ordinary replies.',1],['Redress','A resident cannot challenge a reply or ask for a person.',1]];
+function init_h4(){
+  $('#h4g').onclick=()=>{
+    const m=$('#h4m').value,b=parseFloat($('#h4b').value),t=parseFloat($('#h4t').value),w=$('#h4w').value,c=$('#h4c').value,sk=$('#h4sk').value,l=$('#h4lim').value;
+    const better=!isNaN(b)&&!isNaN(t)&&(m==='time'?t<b:t>b)&&(m==='time'||t<=100);
+    const ok={m:!!m,b:!isNaN(b),t:!!m&&better,w:!!w,l:l==='1',c:c==='1'};
+    $$('#h4chk li').forEach(li=>li.classList.toggle('y',!!ok[li.dataset.k]));
+    if(!Object.values(ok).every(Boolean)){fbox('h4fb1','info','Tick every box to make the goal measurable. A goal you cannot check is a wish. For percentages the target cannot pass 100; for time it must be lower than the baseline.');return}
+    const mn={acc:'end-to-end accuracy on fresh requests (%)',edge:'edge-case tests passed (%)',time:'seconds per request',succ:'user-success rate (%)'}[m];
+    R.h4g=`My Term-2 goal (${sk||'skill not chosen'}): ${m==='time'?'lower':'raise'} ${mn} from ${b} to ${t} by ${w}, without breaking “${$('#h4lim').selectedOptions[0].text.toLowerCase()}”, checked ${$('#h4c').selectedOptions[0].text.toLowerCase()}.`;
+    fbox('h4fb1','good',R.h4g);
+  };
+  $('#h4gv').innerHTML=GV.map((g,i)=>`<li style="list-style:none"><label><input type="checkbox" data-g="${i}"> <b>${esc(g[0])}</b>: ${esc(g[1])} <span class="note">Tick if missing</span></label></li>`).join('');
+  $('#h4gvbtn').onclick=()=>{
+    const first=$('#h4first').value;if(first===''){fbox('h4fbg','info','Choose which control to fix first.');return}
+    const t=$$('#h4gv input').map(x=>x.checked?1:0),want=GV.map(g=>g[2]);const gaps=t.every((v,i)=>v===want[i]);
+    R.h4gv=gaps&&first==='1';
+    if(gaps&&first==='1')fbox('h4fbg','good','Yes. Three controls are missing: transparency, human oversight and redress. Fix human oversight first: a routine reply to an emergency can harm people, and a person can act at once.');
+    else if(!gaps)fbox('h4fbg','bad','Re-read each statement: tick a control only when the statement describes a gap. Accountability and data governance are in place.');
+    else fbox('h4fbg','bad','Right gaps, but not the right first fix. Ask which gap could hurt someone soonest. An emergency sent as a routine reply is the most urgent.');
+  };
+  $('#h4s').onclick=()=>{
+    const v=['#h4s1','#h4s2','#h4s3','#h4s4'].map(s=>$(s).value);if(v.includes('')){fbox('h4fb2','info','Answer all four lines.');return}
+    const n=v.filter(x=>x==='1').length;R.h4s=n;
+    fbox('h4fb2',n===4?'good':'bad',n===4?'A strong higher-stakes plan: strengthen the Review step, rebalance towards accuracy and accept the time cost, verify every reply against the live rules, and add a named person’s approval with no personal data.':`${n} of 4 lines are strongest. For higher stakes, strengthen the component that fails on awkward input, accept a cost to protect accuracy, verify against a trusted source every time, and keep a person accountable without using personal data.`);
+  };
+  $('#h4copy').onclick=e=>copyText(`H4 Goal and Stakes\n${R.h4g||'Goal: not built yet'}\nGovernance audit correct: ${R.h4gv?'yes (fix human oversight first)':'not yet'}\nHigher-stakes plan lines strongest: ${R.h4s??'not checked'} of 4`,e.target);
+}
+
+window.addEventListener('DOMContentLoaded',()=>show(location.hash.slice(1)||'h1',false));
+if(document.readyState!=='loading')show(location.hash.slice(1)||'h1',false);
+</script>
+
+</body></html>
